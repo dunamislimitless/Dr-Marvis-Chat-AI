@@ -45,5 +45,21 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<!-- Google Sign-In: GIDClientID + URL scheme must match Firebase GoogleService-Info.plist (CLIENT_ID + REVERSED_CLIENT_ID). Re-download plist if those keys are missing. -->
+	<key>GIDClientID</key>
+	<string>904280162233-07rvml4s4aer63t90boq1aeeu0t2ba91.apps.googleusercontent.com</string>
+	<key>GIDServerClientID</key>
+	<string>904280162233-eutaj5ujj090d197pqetl4h5opd38u8t.apps.googleusercontent.com</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.904280162233-07rvml4s4aer63t90boq1aeeu0t2ba91</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>
