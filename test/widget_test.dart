@@ -3,6 +3,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:emotional_chat/feature/ai%20chat/views/chat_screen.dart';
 import 'package:emotional_chat/main.dart';
 
+/// Uses [EmotionalSupportApp.testHome] to render [ChatScreen] without [AuthGate]
+/// or live Firebase — same provider tree as production (`AuthService`, [ChatProvider]).
 void main() {
   testWidgets('chat screen shows title and input', (WidgetTester tester) async {
     await tester.pumpWidget(

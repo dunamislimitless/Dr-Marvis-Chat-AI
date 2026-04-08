@@ -43,6 +43,7 @@ firestore.rules          # Example rules — deploy in Firebase Console
 test/
   widget_test.dart
   chat_provider_test.dart
+  auth_service_test.dart
 ```
 
 ## Setup
@@ -115,30 +116,41 @@ test/
    The app already falls back to the Web client for `GoogleSignIn` if `GOOGLE_IOS_CLIENT_ID` is empty, but **`Info.plist` URL scheme** still needs **`REVERSED_CLIENT_ID`** for the OAuth redirect to work.  
    Rebuild the iOS app (not hot reload) after changes.
 
-   **Android (Google Sign-In):** After you add **SHA-1** / **SHA-256**, download **`google-services.json` again**. Open it and confirm **`oauth_client`** is not empty — if it is still `[]`, Google Sign-In will not work until fingerprints are correct and the file is refreshed.
+   **Android (Google Sign-In):**
 
-   Align these (same **Web** client ID everywhere):
+   - After you add **SHA-1** and **SHA-256** for `com.example.emotional_chat`, download a fresh **`google-services.json`** into `android/app/`. The file should list **Web** and **Android** entries under **`oauth_client`** (not an empty array `[]`). An empty `oauth_client` commonly causes **“No credential available”** from Android’s Credential Manager until fingerprints are registered and the file is updated.
+   - Align the **Web** client ID in three places: `.env` → **`GOOGLE_SERVER_CLIENT_ID`**, `strings.xml` → **`default_web_client_id`**, and the Web entry inside `google-services.json` / `oauth_client`.
+   - Set **`GOOGLE_ANDROID_CLIENT_ID`** in `.env` and **`google_android_client_id`** in `strings.xml` to the **Android** OAuth client (same ID shown in Google Cloud for your Android app). This keeps configuration explicit; sign-in still relies on **`serverClientId`** (Web) plus package name + signing cert.
+   - Rebuild the Android app after changes (not hot reload).
 
-   - `.env` → **`GOOGLE_SERVER_CLIENT_ID`**
-   - `android/app/src/main/res/values/strings.xml` → **`default_web_client_id`** (must match the Web client ID)
+   If Gradle reports a **duplicate `default_web_client_id`** after `oauth_client` is populated in `google-services.json`, remove the manual `default_web_client_id` line from `strings.xml` and rely on the merged value from the updated JSON (or keep a single source of truth and avoid duplication).
 
-   The app also passes `serverClientId` from `.env` in Dart; keep **`.env`** and **`strings.xml`** in sync when you rotate keys. Rebuild Android after changes (not hot reload).
-
-   If Gradle reports a **duplicate `default_web_client_id`** resource after `oauth_client` is filled in `google-services.json`, remove the manual line from `strings.xml` and rely on the value generated from the updated JSON.
-
-4. Add a `.env` file at the project root for Gemini:
+4. Add a `.env` file at the project root (see `flutter` assets in `pubspec.yaml` — it must list `.env`):
 
    ```env
    GEMINI_API_KEY=your_api_key_here
    ```
 
-   For **Google Sign-In on Android**, also add the **Web client ID** (OAuth 2.0 client of type *Web*, ending in `.apps.googleusercontent.com`). You can copy it from Firebase Console → Project settings → General → *Your apps* (Web) or Google Cloud → APIs & Credentials:
+   **Google Sign-In (required for Firebase Auth with Google):**
+
+   | Variable | Role |
+   |----------|------|
+   | `GOOGLE_SERVER_CLIENT_ID` | **Web** OAuth client ID (`*.apps.googleusercontent.com`). Used as `serverClientId` so Google returns an **ID token** for Firebase. Must match `android/app/src/main/res/values/strings.xml` → `default_web_client_id`. |
+   | `GOOGLE_IOS_CLIENT_ID` | **iOS** OAuth client ID (same as `CLIENT_ID` in `GoogleService-Info.plist` and `GIDClientID` in `Info.plist`). |
+   | `GOOGLE_ANDROID_CLIENT_ID` | **Android** OAuth client ID — same value as `google_android_client_id` in `strings.xml`. Documented for parity; `google_sign_in` on Android does **not** use the Dart `clientId` parameter (the OS uses your app package + SHA-1 + `google-services.json`). |
+
+   Minimal example:
 
    ```env
+   GEMINI_API_KEY=your_api_key_here
    GOOGLE_SERVER_CLIENT_ID=xxxx.apps.googleusercontent.com
+   GOOGLE_IOS_CLIENT_ID=yyyy.apps.googleusercontent.com
+   GOOGLE_ANDROID_CLIENT_ID=zzzz.apps.googleusercontent.com
    ```
 
-   Without this, Google may not return an **ID token**, and Firebase sign-in will fail even after adding SHA-1.
+   Copy the Web and client IDs from Firebase Console → Project settings → *Your apps*, or Google Cloud → APIs & Services → Credentials.
+
+   Without `GOOGLE_SERVER_CLIENT_ID`, Google may not return an **ID token**, and Firebase sign-in will fail even after adding SHA-1.
 
 5. Run the app:
 
@@ -148,16 +160,19 @@ test/
 
 ## Testing
 
-This project includes both widget and unit tests.
+This project includes widget tests, unit tests, and pure logic tests for auth error strings.
 
 - `test/widget_test.dart`
-  - Pumps `ChatScreen` with `EmotionalSupportApp(testHome: ...)` (no Firebase required).
-  - Verifies chat title, mood trends button, and input/send controls.
+  - Builds `EmotionalSupportApp(testHome: ChatScreen())` so **`AuthGate` is skipped** and no Firebase initialization is required for the test run.
+  - `EmotionalSupportApp` still provides `AuthService` and `ChatProvider` via `MultiProvider`, matching production wiring.
+  - Asserts chat title, “View Mood Trends”, hint text, and send affordance.
 
 - `test/chat_provider_test.dart`
-  - Verifies mood tracking increments correctly (case-insensitive).
-  - Verifies unmatched text does not change mood counters.
-  - Verifies `sendMessage()` exits safely with empty input.
+  - Mood tracking: case-insensitive keywords, unmatched text, date ranges for `moodCountsForLastDays`.
+  - `sendMessage()` with empty input does not enqueue messages.
+
+- `test/auth_service_test.dart`
+  - `formatAuthError()` maps `GoogleSignInException` cases (for example **canceled** and **unknownError** with “No credential available”) and `StateError` to user-facing strings.
 
 Run all tests:
 
@@ -170,6 +185,7 @@ Run a specific test file:
 ```bash
 flutter test test/widget_test.dart
 flutter test test/chat_provider_test.dart
+flutter test test/auth_service_test.dart
 ```
 
 ## Notes
