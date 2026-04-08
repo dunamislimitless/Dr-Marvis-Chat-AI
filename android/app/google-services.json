@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "903633325750",
+    "project_id": "marvis-ai-202",
+    "storage_bucket": "marvis-ai-202.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:903633325750:android:638509687d3e07e4f66017",
+        "android_client_info": {
+          "package_name": "com.example.emotional_chat"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "904280162233-eutaj5ujj090d197pqetl4h5opd38u8t.apps.googleusercontent.com",
+          "client_type": 3
+        },
+        {
+          "client_id": "904280162233-m5hlt452153802itvtr3kkr69nkk5a37.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.emotional_chat",
+            "certificate_hash": "26f05d9db427639c3f877f40d840a9b22c04000e"
+          }
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2czudD6iykNo106AghpFSsb9sRyLcUUE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "904280162233-eutaj5ujj090d197pqetl4h5opd38u8t.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

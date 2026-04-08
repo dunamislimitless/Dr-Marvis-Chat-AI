@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Web OAuth client ID — must match .env GOOGLE_SERVER_CLIENT_ID and Firebase Console (type: Web). -->
+    <string name="default_web_client_id" translatable="false">904280162233-eutaj5ujj090d197pqetl4h5opd38u8t.apps.googleusercontent.com</string>
+    <!-- Android OAuth client ID (type: Android) — must match .env GOOGLE_ANDROID_CLIENT_ID -->
+    <string name="google_android_client_id" translatable="false">904280162233-m5hlt452153802itvtr3kkr69nkk5a37.apps.googleusercontent.com</string>
+</resources>
